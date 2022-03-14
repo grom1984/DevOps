@@ -1,0 +1,3 @@
+id: crplk7is28vo71ek9k9o
+folder_id: b1gdbqjh6o63ogmrsetm
+name: my-docker-registry

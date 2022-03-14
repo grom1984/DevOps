@@ -1,0 +1,54 @@
+name: group-vm-theme3
+service_account_id: aje94vp4uajXXXXXXXXX
+
+instance_template:
+    platform_id: standard-v1
+    resources_spec:
+        memory: 2g
+        cores: 2
+    boot_disk_spec:
+        mode: READ_WRITE
+        disk_spec:
+#Ubuntu 18.04 TLS            image_id: fd88a4k09o9bdcj1m4og
+#Ubuntu 20.04 TLS            image_id: fd8lbi4hr72am1eb2kmf
+            image_id: fd8fosbegvnhj5haiuoq
+            type_id: network-hdd
+            size: 32g
+    network_interface_specs:
+        - network_id: enptfps7tdl3XXXXXXXXX
+          subnet_ids:
+            - b0cdjmiatc6nXXXXXXXX
+            - e2lqukklma5nXXXXXXXX
+            - e9be8s9kfc9gXXXXXXXX
+          primary_v4_address_spec: { one_to_one_nat_spec: { ip_version: IPV4 }}
+    scheduling_policy:
+        preemptible: false
+    metadata:
+      user-data: |-
+        #cloud-config
+        users:
+          - name: my-user
+            groups: sudo
+            lock_passwd: true
+            sudo: 'ALL=(ALL) NOPASSWD:ALL'
+            ssh-authorized-keys:
+              - ssh-rsa XXXXXXXXXXXXXXXXXXXXXXBAAABgQDgMz5XTMdFnYq1vixZQb78prc56vdECri0/pOBv783NjDyyASVgZ3xnMKSuAKCpLv+tuVx/1B28EC+UbJ7DrWvRuL+5Q+bYN0Orh0ZlvSgwHiAM9caVnikzj/9cypXF7QrHH6gwAeoe8UmxXbz4GoZcmsULBtRJVUF3bRHJeJZvfYUxI0BTmG3wmeuLDykKlTQaT5bnZ7AofCv6Zbg8Lf8B8eQ1w3aFaHThs5Cajtlx8+XXXXXXXXXXXXXsB9teNN0zDXLtgSe8M2UWTgLDkZgWTJ080JyCBTOu5IbaVMWBLbnH/9X/KhI9herHBdFSOMFn8yzGrvEaEoCDHCOSGTHtmlHkVCn9uVrzypRUgiFRLD2i/PCjdsDVb7S2oSNs3dfBOhVsg+8OL02WmcZprvIsupyibl4ZehYUrOmJW8+AXB+xjwyZn/qXsPDPXjcJLqLQFplF51oBoH/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXsT996nyNoQ+j0hLpHpU= grom@archlinux
+        package_update: true
+        runcmd:
+          - [apt-get, install, -y, nginx ]
+          - [/bin/bash, -c, 'source /etc/lsb-release; sed -i "s/Welcome to nginx/It is $(hostname) on $DISTRIB_DESCRIPTION/" /var/www/html/index.nginx-debian.html'] 
+       
+deploy_policy:
+    max_unavailable: 0
+    max_expansion: 1
+scale_policy:
+    fixed_scale:
+        size: 3
+allocation_policy:
+    zones:
+        - zone_id: ru-central1-a
+        - zone_id: ru-central1-b
+        - zone_id: ru-central1-c
+load_balancer_spec:
+    target_group_spec:
+        name: my-target-group

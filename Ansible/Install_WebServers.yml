@@ -1,0 +1,40 @@
+---
+- name: Install WebServer and Copy HomePage
+  hosts: all
+  become: yes
+
+  vars:
+    src_file: /home/grom/site/index.html
+    dst_files: /var/www/html
+
+  tasks:
+  - name: Check LINUX Version
+    debug: var=ansible_os_family
+    
+  - block: #RedHat
+      - name: Install WebServer Apache for RedHat
+        yum: name=httpd state=latest
+      - name: Copy index.html in /var/www/html
+        copy: src={{ src_file }} dest={{ dst_files }} mode=0555
+        notify: Restart Apache RedHat
+      - name: Start of service Apache
+        service: name=httpd state=started enabled=yes
+    when: ansible_os_family == "RedHat"
+    
+  - block: #Debian
+      - name: Install WebServer Apache for Debian
+        apt: name=apache2 state=latest
+      - name: Copy index.html in /var/www/html
+        copy: src={{ src_file }} dest={{ dst_files }} mode=0555
+        notify: Restart Apache Debian
+      - name: Start of service Apache
+        service: name=apache2 state=started enabled=yes
+    when: ansible_os_family == "Debian"
+    
+  handlers:
+    - name: Restart Apache RedHat
+      service: name=httpd state=restarted
+      
+    - name: Restart Apache Debian
+      service: name=apache2 state=restarted
+
